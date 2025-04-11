@@ -13,8 +13,8 @@ contributors: Nicolò Ribaudo
   <h1>Numbers and Dates</h1>
 
   <emu-clause id="sec-withsignificantdigits">
-    <h1><ins>Numerics with Fractional Digits</ins></h1>
-    <p>A WithSignificantDigits is an object that specifies how another object, such as a Number, can be enriched with additional information about its precision and how that additional precision can be presented. WithSignificantDigits objects are not instantiable; they are created, instead, by calling a suitable method in any object that has the `withSignificantDigits` method in its prototype.</p>
+    <h1><ins>Decimal with precision</ins></h1>
+    <p>A "Decimal with precision" is an object that specifies how a Decimal object can be enriched with additional information about its precision and how that additional precision can be presented. Decimal with precision objects are not instantiable; they are created, instead, by calling the `Decimal.prototype.withSignificantDigits` method.</p>
     <emu-clause id="sec-decimalwithprecision-prototype">
       <h1>The %DecimalWithPrecisionPrototype% Object</h1>
       <p>The <dfn>%DecimalWithPrecisionPrototype%</dfn> object:</p>
