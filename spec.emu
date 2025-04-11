@@ -4,95 +4,76 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/github.min.css">
 <script src="./spec.js"></script>
 <pre class="metadata">
-title: Numeric value with fractional digits
+title: Decimal with precision
 stage: -1
-contributors: Jesse Alama, Nicolò Ribaudo
+contributors: Nicolò Ribaudo
 </pre>
 
 <emu-clause id="sec-numbers-and-dates" number="21">
   <h1>Numbers and Dates</h1>
 
-  <emu-clause id="sec-withfractionaldigits">
+  <emu-clause id="sec-withsignificantdigits">
     <h1><ins>Numerics with Fractional Digits</ins></h1>
-    <p>A WithFractionalDigits is an object that specifies how another object, such as a Number, can be enriched with additional information about its precision and how that additional precision can be presented. WithFractionalDigits objects are not instantiable; they are created, instead, by calling a suitable method in any object that has the `withFractionalDigits` method in its prototype.</p>
-    <emu-clause id="sec-withfractionaldigits-prototype">
-      <h1>The %WithFractionalDigitsPrototype% Object</h1>
-      <p>The <dfn>%WithFractionalDigitsPrototype%</dfn> object:</p>
+    <p>A WithSignificantDigits is an object that specifies how another object, such as a Number, can be enriched with additional information about its precision and how that additional precision can be presented. WithSignificantDigits objects are not instantiable; they are created, instead, by calling a suitable method in any object that has the `withSignificantDigits` method in its prototype.</p>
+    <emu-clause id="sec-decimalwithprecision-prototype">
+      <h1>The %DecimalWithPrecisionPrototype% Object</h1>
+      <p>The <dfn>%DecimalWithPrecisionPrototype%</dfn> object:</p>
       <ul>
-        <li>has properties that are inherited by all WithFractionalDigits Objects.</li>
+        <li>has properties that are inherited by all WithSignificantDigits Objects.</li>
         <li>is an ordinary object.</li>
         <li>has a [[Prototype]] internal slot whose value is Object.prototype.</li>
         <li>has the following properties:</li>
       </ul>
 
-      <emu-clause id="sec-createwithfractionaldigitsobject" type="abstract operation">
+      <emu-clause id="sec-createdecimalwithprecisionobject" type="abstract operation">
         <h1>
-          CreateWithFractionalDigitsObject (
-            _numeric_: a Number or a Decimal128 object,
-            _digits_: an ECMAScript language value,
-          ): either a normal completion containing an object or a throw completion
+          CreateDecimalWithPrecisionObject (
+            _decimal_: a Decimal128 object,
+            _significantDigits_: an integer between 0 and 34 inclusive,
+          ): an Object
         </h1>
         <dl class="header">
           <dt>description</dt>
           <dd></dd>
         </dl>
         <emu-alg>
-          1. If _digits_ is not a Number, throw a *TypeError* exception.
-          1. If _digits_ is *NaN*<sub>𝔽</sub>, *+∞<sub>𝔽</sub>*, or *+∞<sub>𝔽</sub>*, throw a *RangeError* exception.
-          1. If ℝ(_digits_) is not an integer, throw a *TypeError* exception.
-          1. Let _obj_ be OrdinaryObjectCreate(%WithFractionalDigitsPrototype%, « [[Number]], [[Precision]] »).
-          1. Set _obj_.[[NumericValue]] to _numeric_.
-          1. Set _obj_.[[FractionalDigits]] to ℝ(_digits_).
+          1. Let _obj_ be OrdinaryObjectCreate(%DecimalWithPrecisionPrototype%, « [[DecimalObject]], [[SignificantDigits]] »).
+          1. Set _obj_.[[DecimalObject]] to _decimal_.
+          1. Set _obj_.[[SignificantDigits]] to _significantDigits_.
           1. Return _obj_.
         </emu-alg>
       </emu-clause>
 
-      <emu-clause id="sec-%withfractionaldigitprototype%.numericObject">
-        <h1>get %WithFractionalDigitsPrototype%.numericObject</h1>
+      <emu-clause id="sec-%decimalwithprecisionprototype%.decimal">
+        <h1>get %DecimalWithPrecisionPrototype%.decimal</h1>
         <emu-alg>
           1. Let _O_ be the *this* value.
-          1. Perform ? RequireInternalSlot(_O_, [[FractionalDigits]]).
-          1. Let _N_ be _O_.[[NumericValue]].
-          1. Return ! ToObject(_N_).
+          1. Perform ? RequireInternalSlot(_O_, [[DecimalObject]]).
+          1. Return _O_.[[DecimalObject]].
         </emu-alg>
       </emu-clause>
 
-      <emu-clause id="sec-%withfractionaldigitprototype%.fractionalDigits">
-        <h1>get %WithFractionalDigitsPrototype%.fractionalDigits</h1>
+      <emu-clause id="sec-%withfractionaldigitprototype%.significantDigits">
+        <h1>get %DecimalWithPrecisionPrototype%.significantDigits</h1>
         <emu-alg>
           1. Let _O_ be the *this* value.
-          1. Perform ? RequireInternalSlot(_O_, [[FractionalDigits]]).
-          1. Return 𝔽(_O_.[[FractionalDigits]]).
-        </emu-alg>
-      </emu-clause>
-
-      <emu-clause id="sec-%withfractionaldigitprototype%.valueof">
-        <h1>%WithFractionalDigitsPrototype%.valueOf ( )</h1>
-        <emu-alg>
-          1. Let _O_ be the *this* value.
-          1. Perform ? RequireInternalSlot(_O_, [[FractionalDigits]]).
-          1. Let _N_ be _O_.[[NumericValue]].
-          1. Return ? ToPrimitive(_N_).
+          1. Perform ? RequireInternalSlot(_O_, [[SignificantDigits]]).
+          1. Return 𝔽(_O_.[[SignificantDigits]]).
         </emu-alg>
       </emu-clause>
 
       <emu-clause id="sec-%withfractionaldigitprototype%.tostring">
-        <h1>%WithFractionalDigitsPrototype%.toString ( )</h1>
+        <h1>%DecimalWithPrecisionPrototype%.toString ( )</h1>
         <p>This function performs the following steps when called:</p>
         <emu-alg>
           1. Let _O_ be the *this* value.
-          1. Perform ? RequireInternalSlot(_O_, [[FractionalDigits]]).
-          1. Let _N_ be _O_.[[NumericValue]].
-          1. Let _digits_ be _O_.[[FractionalDigits]].
-          1. If _digits_ &lt; 0, set _digits_ to 0.
-          1. If _N_ has a [[Decimal128Data]] internal slot, then
-            1. Return ? Call(%Decimal.prototype.toFixed%, _N_, « 𝔽(_digits_) »).
-          1. Return ? Call(%Number.prototype.toFixed%, _N_, « 𝔽(_digits_) »).
+          1. Perform ? RequireInternalSlot(_O_, [[DecimalObject]]).
+          1. Return ? Call(%Decimal.prototype.toPrecision%, _O_.[[DecimalObject]], « 𝔽(_O_.[[SignificantDigits]]) »).
         </emu-alg>
       </emu-clause>
 
       <emu-clause id="sec-%withfractionaldigitprototype%.tolocalestring">
-        <h1>%WithFractionalDigitsPrototype%.toLocaleString ( [ _locales_ [ , _options_ ] ] )</h1>
+        <h1>%DecimalWithPrecisionPrototype%.toLocaleString ( [ _locales_ [ , _options_ ] ] )</h1>
 
         <emu-note type="editor">
           <p>This will be defined in ECMA-402</p>
@@ -101,34 +82,44 @@ contributors: Jesse Alama, Nicolò Ribaudo
         <p>This function performs the following steps when called:</p>
         <emu-alg>
           1. Let _O_ be the *this* value.
-          1. Perform ? RequireInternalSlot(_O_, [[FractionalDigits]]).
-          1. Let _number_ be ! ToIntlMathematicalValue(_O_.[[NumericValue]]).
+          1. Perform ? RequireInternalSlot(_O_, [[SignificantDigits]]).
+          1. Let _number_ be ! ToIntlMathematicalValue(_O_.[[DecimalObject]]).
           1. Let _numberFormat_ be ? Construct(%Intl.NumberFormat%, « _locales_ , _options_ »).
-          1. Return FormatNumeric(_numberFormat_, _number_, _O_.[[FractionalDigits]]).
+          1. Return FormatNumeric(_numberFormat_, _number_, _O_.[[SignificantDigits]]).
         </emu-alg>
       </emu-clause>
     </emu-clause>
   </emu-clause>
 
-  <emu-clause id="number-and-decimal">
-    <h1>Changes to Number and Decimal128 prototypes</h1>
+  <emu-clause id="decimal-changes">
+    <h1>Changes to the Decimal128 prototype</h1>
 
-    <emu-clause id="sec-decimal128.prototype.withfractionaldigits">
-      <h1><ins>Decimal128.prototype.withFractionalDigits ( _digits_ )</ins></h1>
+    <emu-clause id="sec-decimal128.prototype.withsignificantdigits">
+      <h1><ins>Decimal.prototype.withSignificantDigits ( _significantDigits_ )</ins></h1>
       <p>This method performs the following steps when called:</p>
       <emu-alg>
         1. Let _O_ be the *this* value.
         1. Perform ? RequireInternalSlot(_O_, [[Decimal128Data]]).
-        1. Return ? CreateWithFractionalDigitsObject(_O_, _digits_).
+        1. If _significantDigits_ is not a Number, throw a *TypeError* exception.
+        1. If _significantDigits_ is *NaN*<sub>𝔽</sub>, *+∞<sub>𝔽</sub>*, or *+∞<sub>𝔽</sub>*, throw a *RangeError* exception.
+        1. If ℝ(_significantDigits_) is not an non-negative integer, throw a *TypeError* exception.
+        1. If ℝ(_significantDigits_) > 34, throw a *TypeError* exception.
+        1. Return CreateDecimalWithPrecisionObject(_O_, _significantDigits_).
       </emu-alg>
     </emu-clause>
 
     <emu-clause id="sec-number.prototype.withfractionaldigits">
-      <h1><ins>Number.prototype.withFractionalDigits ( _digits_ )</ins></h1>
+      <h1><ins>Decimal.prototype.withFractionalDigits ( _fractionalDigits_ )</ins></h1>
       <p>This method performs the following steps when called:</p>
       <emu-alg>
-        1. Let _number_ be ? ThisNumberValue(*this* value).
-        1. Return ? CreateWithFractionalDigitsObject(_number_, _digits_).
+        1. Let _O_ be the *this* value.
+        1. Perform ? RequireInternalSlot(_O_, [[Decimal128Data]]).
+        1. If _fractionalDigits_ is not a Number, throw a *TypeError* exception.
+        1. If _fractionalDigits_ is *NaN*<sub>𝔽</sub>, *+∞<sub>𝔽</sub>*, or *+∞<sub>𝔽</sub>*, throw a *RangeError* exception.
+        1. If ℝ(_fractionalDigits_) is not an integer, throw a *TypeError* exception.
+        1. Let _significantDigits_ be _fractionalDigits_ + ceil(log10(abs(_O_.[[Decimal128Data]]))).
+        1. If _significantDigits_ &lt; 0 or _significantDigits_ > 34, throw a *TypeError* exception.
+        1. Return CreateDecimalWithPrecisionObject(_O_, _significantDigits_).
       </emu-alg>
     </emu-clause>
   </emu-clause>
@@ -139,6 +130,25 @@ contributors: Jesse Alama, Nicolò Ribaudo
 
   <emu-clause id="numberformat-objects">
     <h1>NumberFormat Objects</h1>
+
+    <emu-clause id="sec-number-format-functions">
+      <h1>Number Format Functions</h1>
+
+      <p>A Number format function is an anonymous built-in function that has a [[NumberFormat]] internal slot.</p>
+      <p>When a Number format function _F_ is called with optional argument _value_, the following steps are taken:</p>
+
+      <emu-alg>
+        1. Let _nf_ be _F_.[[NumberFormat]].
+        1. Assert: _nf_ is an Object and _nf_ has an [[InitializedNumberFormat]] internal slot.
+        1. If _value_ is not provided, let _value_ be *undefined*.
+        1. Let _x_ be ? ToIntlMathematicalValue(_value_).
+        1. <ins>If _value_ is an Object with a [[SignificantDigits]] internal slot, then</ins>
+          1. <ins>Return FormatNumeric(_nf_, _x_, _value_.[[SignificantDigits]]).</ins>
+        1. Return FormatNumeric(_nf_, _x_).
+      </emu-alg>
+
+      <p>The *"length"* property of a Number format function is *1*<sub>𝔽</sub>.</p>
+    </emu-clause>
 
     <emu-clause id="sec-setnfdigitoptions" type="abstract operation">
       <h1>
@@ -173,7 +183,7 @@ contributors: Jesse Alama, Nicolò Ribaudo
         1. Set _intlObj_.[[TrailingZeroDisplay]] to _trailingZeroDisplay_.
         1. If _mnsd_ is *undefined* and _mxsd_ is *undefined*, let _hasSd_ be *false*. Otherwise, let _hasSd_ be *true*.
         1. If _mnfd_ is *undefined* and _mxsd_ is *undefined*, let _hasFd_ be *false*. Otherwise, let _hasFd_ be *true*.
-        1. <ins>If _hasSd_ is *false* ans _hasFd_ is *false*, set _intlObj_.[[UseFallbackFractionalDigits]] to *true*.</ins>
+        1. <ins>If _hasSd_ is *false* ans _hasFd_ is *false*, set _intlObj_.[[UseFallbackSignificantDigits]] to *true*.</ins>
         1. Let _needSd_ be *true*.
         1. Let _needFd_ be *true*.
         1. If _roundingPriority_ is *"auto"*, then
@@ -230,7 +240,7 @@ contributors: Jesse Alama, Nicolò Ribaudo
         FormatNumericToString (
           _intlObject_: an Object,
           _x_: a mathematical value or ~negative-zero~,
-          <ins>optional _fallbackFractionalDigits_: an integer</ins>
+          <ins>optional _fallbackSignificantDigits_: an integer</ins>
         ): a Record with fields [[RoundedNumber]] (a mathematical value or ~negative-zero~) and [[FormattedString]] (a String)
       </h1>
       <dl class="header">
@@ -238,7 +248,7 @@ contributors: Jesse Alama, Nicolò Ribaudo
         <dd>It rounds _x_ to an Intl mathematical value according to the internal slots of _intlObject_. The [[RoundedNumber]] field contains the rounded result value and the [[FormattedString]] field contains a String value representation of that result formatted according to the internal slots of _intlObject_.</dd>
       </dl>
       <emu-alg>
-        1. Assert: _intlObject_ has [[RoundingMode]], [[RoundingType]], [[MinimumSignificantDigits]], [[MaximumSignificantDigits]], [[MinimumIntegerDigits]], [[MinimumFractionDigits]], [[MaximumFractionDigits]], <ins>[[UseFallbackFractionDigits]],</ins> [[RoundingIncrement]], and [[TrailingZeroDisplay]] internal slots.
+        1. Assert: _intlObject_ has [[RoundingMode]], [[RoundingType]], [[MinimumSignificantDigits]], [[MaximumSignificantDigits]], [[MinimumIntegerDigits]], [[MinimumFractionDigits]], [[MaximumFractionDigits]], <ins>[[UseFallbackSignificantDigits]],</ins> [[RoundingIncrement]], and [[TrailingZeroDisplay]] internal slots.
         1. If _x_ is ~negative-zero~, then
           1. Let _sign_ be ~negative~.
           1. Set _x_ to 0.
@@ -249,13 +259,13 @@ contributors: Jesse Alama, Nicolò Ribaudo
             1. Set _x_ to -_x_.
         1. <ins>Let _minimumFD_ be _intlObject_.[[MinimumFractionDigits]].</ins>
         1. <ins>Let _maximumFD_ be _intlObject_.[[MaximumFractionDigits]].</ins>
-        1. <ins>If _fallbackFractionalDigits_ is provided and is non-negative, then</ins>
-          1. <ins>If _minimumFD_ &le; _fallbackFractionalDigits_ and _fallbackFractionalDigits_ &le; _maximumFD_, then</ins>
-            1. <ins>Set _minimumFD_ to _fallbackFractionalDigits_.</ins>
-            1. <ins>Set _maximumFD_ to _fallbackFractionalDigits_.</ins>
-          1. <ins>Else if _intlObject_.[[UseFallbackFractionalDigits]] is *true*, then</ins>
-            1. <ins>Set _minimumFD_ to _fallbackFractionalDigits_.</ins>
-            1. <ins>Set _maximumFD_ to _fallbackFractionalDigits_.</ins>
+        1. <ins>If _fallbackSignificantDigits_ is provided and is non-negative, then</ins>
+          1. <ins>If _minimumFD_ &le; _fallbackSignificantDigits_ and _fallbackSignificantDigits_ &le; _maximumFD_, then</ins>
+            1. <ins>Set _minimumFD_ to _fallbackSignificantDigits_.</ins>
+            1. <ins>Set _maximumFD_ to _fallbackSignificantDigits_.</ins>
+          1. <ins>Else if _intlObject_.[[UseFallbackSignificantDigits]] is *true*, then</ins>
+            1. <ins>Set _minimumFD_ to _fallbackSignificantDigits_.</ins>
+            1. <ins>Set _maximumFD_ to _fallbackSignificantDigits_.</ins>
         1. Let _unsignedRoundingMode_ be GetUnsignedRoundingMode(_intlObject_.[[RoundingMode]], _sign_).
         1. If _intlObject_.[[RoundingType]] is ~significant-digits~, then
           1. Let _result_ be ToRawPrecision(_x_, _intlObject_.[[MinimumSignificantDigits]], _intlObject_.[[MaximumSignificantDigits]], _unsignedRoundingMode_).
@@ -296,7 +306,7 @@ contributors: Jesse Alama, Nicolò Ribaudo
         PartitionNumberPattern (
           _numberFormat_: an object initialized as a NumberFormat,
           _x_: an Intl mathematical value,
-          <ins>optional _fallbackFractionalDigits_: an integer</ins>
+          <ins>optional _fallbackSignificantDigits_: an integer</ins>
         ): a List of Records with fields [[Type]] (a String) and [[Value]] (a String)
       </h1>
       <dl class="header">
@@ -305,7 +315,7 @@ contributors: Jesse Alama, Nicolò Ribaudo
       </dl>
 
       <emu-note type="editor">
-        <p>PartitionNumberPattern is updated to forward _fallbackFractionalDigits_ to FormatNumericToString.</p>
+        <p>PartitionNumberPattern is updated to forward _fallbackSignificantDigits_ to FormatNumericToString.</p>
       </emu-note>
     </emu-clause>
 
@@ -314,14 +324,14 @@ contributors: Jesse Alama, Nicolò Ribaudo
         FormatNumeric (
           _numberFormat_: an Intl.NumberFormat,
           _x_: an Intl mathematical value,
-          <ins>optional _fallbackFractionalDigits_: an integer</ins>
+          <ins>optional _fallbackSignificantDigits_: an integer</ins>
         ): a String
       </h1>
       <dl class="header">
       </dl>
       <emu-alg>
-        1. <ins>If _fallbackFractionalDigits_ is defined, then</ins>
-          1. <ins>Let _parts_ be PartitionNumberPattern(_numberFormat_, _x_, _fallbackFractionalDigits_).</ins>
+        1. <ins>If _fallbackSignificantDigits_ is defined, then</ins>
+          1. <ins>Let _parts_ be PartitionNumberPattern(_numberFormat_, _x_, _fallbackSignificantDigits_).</ins>
         1. <ins>Else,</ins>
           1. Let _parts_ be PartitionNumberPattern(_numberFormat_, _x_).
         1. Let _result_ be the empty String.
